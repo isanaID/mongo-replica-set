@@ -1,5 +1,5 @@
 # Base image
-FROM mongo:8.0.10
+FROM mongo:latest
 
 # Copy the initiation script into the container
 COPY generate-keyfile.sh /generate-keyfile.sh
