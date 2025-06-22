@@ -1,27 +1,51 @@
 # Mongo Replica Set with Keyfile Auth - Latest Version
 
-This repo contains the resources required to deploy a MongoDB replica set with the latest MongoDB version in Railway from a template. The setup includes auto-reconnect capabilities and optimized configurations for production use.
+Deploy MongoDB Replica Set dengan versi terbaru di Railway. Setup ini menyediakan auto-reconnect, failover otomatis, dan konfigurasi production-ready.
 
 ## 🚀 Quick Deploy
-
-To deploy your own Mongo replica set in Railway, just click the button below!
 
 [![Deploy on Railway](https://railway.com/button.svg)](https://railway.com/template/ha-mongo)
 
 ## ✨ Features
 
-- **Latest MongoDB Version**: Uses `mongo:latest` Docker image
-- **Auto-Reconnect**: Optimized heartbeat and election timeout settings
-- **Resilient Deployment**: Automatic restart policies and health checks
-- **Secure Authentication**: Keyfile-based authentication between nodes
-- **Production Ready**: Optimized cache settings and connection handling
-- **Detailed Logging**: Optional debug logging for troubleshooting
+- **Latest MongoDB Version**: Menggunakan `mongo:latest` Docker image
+- **Auto-Reconnect**: Optimized heartbeat dan election timeout settings
+- **Resilient Deployment**: Automatic restart policies dan health checks
+- **Secure Authentication**: Keyfile-based authentication antar nodes
+- **Production Ready**: Optimized cache settings dan connection handling
+- **Detailed Logging**: Optional debug logging untuk troubleshooting
+- **Failover Support**: Automatic primary election saat restart
 
-## 📖 Documentation
+## � Documentation
 
-For detailed deployment instructions, see [DEPLOYMENT_GUIDE.md](./DEPLOYMENT_GUIDE.md)
+| File                                                           | Deskripsi                  |
+| -------------------------------------------------------------- | -------------------------- |
+| [DEPLOYMENT_GUIDE.md](./DEPLOYMENT_GUIDE.md)                   | Panduan deployment lengkap |
+| [DEPLOYMENT_CHECKLIST.md](./DEPLOYMENT_CHECKLIST.md)           | Checklist step-by-step     |
+| [railway-deployment-config.md](./railway-deployment-config.md) | Konfigurasi Railway detail |
 
-For even more information, check out the tutorial in Railway: [Deploy and Monitor a MongoDB Replica Set](https://docs.railway.com/tutorials/deploy-and-monitor-mongo)
+## 🛠 Quick Start
+
+### 1. Generate Keyfile
+
+```bash
+# Windows
+generate-keyfile.cmd
+
+# Linux/Mac
+./generate-keyfile-local.sh
+```
+
+### 2. Deploy di Railway
+
+Ikuti [DEPLOYMENT_CHECKLIST.md](./DEPLOYMENT_CHECKLIST.md) untuk step-by-step deployment.
+
+### 3. Verifikasi
+
+```javascript
+// Connect dan test replica set
+rs.status();
+```
 
 ### About the MongoDB Nodes
 

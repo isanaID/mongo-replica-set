@@ -67,11 +67,35 @@ check_replica_status() {
   local port=$2
   
   log "Checking if replica set is already configured..."
+  
+  # First try without authentication to see if node is accessible
+  ping_output=$(mongosh --host "$host" --port "$port" --eval "db.adminCommand('ping')" --quiet 2>&1)
+  ping_exit_code=$?
+  
+  debug_log "Ping check exit code: $ping_exit_code"
+  debug_log "Ping output: $ping_output"
+  
+  if [ $ping_exit_code -ne 0 ]; then
+    log "ERROR: Cannot connect to MongoDB at $host:$port"
+    log "This usually means the MongoDB service is not running or not accessible"
+    return 2
+  fi
+  
+  # Try with authentication
   status_output=$(mongosh --host "$host" --port "$port" --username "$MONGOUSERNAME" --password "$MONGOPASSWORD" --authenticationDatabase "admin" --eval "rs.status()" --quiet 2>&1)
   status_exit_code=$?
   
   debug_log "Replica status check exit code: $status_exit_code"
   debug_log "Replica status output: $status_output"
+  
+  if [[ "$status_output" == *"Authentication failed"* ]]; then
+    log "ERROR: Authentication failed!"
+    log "Please verify:"
+    log "  1. MONGOUSERNAME=$MONGOUSERNAME matches MONGO_INITDB_ROOT_USERNAME on nodes"
+    log "  2. MONGOPASSWORD matches MONGO_INITDB_ROOT_PASSWORD on nodes"
+    log "  3. All MongoDB nodes have the same credentials"
+    return 3
+  fi
   
   if [ $status_exit_code -eq 0 ]; then
     log "Replica set is already configured. Checking configuration..."
@@ -157,13 +181,31 @@ if ! check_all_nodes "${nodes[@]}"; then
 fi
 
 # Check if replica set is already configured
-if check_replica_status "$MONGO_PRIMARY_HOST" "$MONGO_PORT"; then
+replica_status_result=$(check_replica_status "$MONGO_PRIMARY_HOST" "$MONGO_PORT")
+replica_status_code=$?
+
+if [ $replica_status_code -eq 0 ]; then
   log "Replica set is already configured. No action needed."
   log "**********************************************************"
   log "*           Replica set is already operational.          *"
   log "*              PLEASE DELETE THIS SERVICE.               *"
   log "**********************************************************"
   exit 0
+elif [ $replica_status_code -eq 2 ]; then
+  log "ERROR: Cannot connect to primary MongoDB node. Exiting."
+  exit 1
+elif [ $replica_status_code -eq 3 ]; then
+  log "ERROR: Authentication failed. Please check credentials and redeploy."
+  log "**********************************************************"
+  log "*                 AUTHENTICATION ERROR                   *"
+  log "*                                                        *"
+  log "*  Please verify environment variables:                  *"
+  log "*  - MONGOUSERNAME should match MONGO_INITDB_ROOT_USERNAME *"
+  log "*  - MONGOPASSWORD should match MONGO_INITDB_ROOT_PASSWORD *"
+  log "*  - All MongoDB nodes should have same credentials      *"
+  log "*                                                        *"
+  log "**********************************************************"
+  exit 1
 fi
 
 # Initiate replica set

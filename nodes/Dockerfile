@@ -1,5 +1,5 @@
-# Base image - Using latest MongoDB version
-FROM mongo:latest
+# Base image
+FROM mongo:8.0.10
 
 # Copy the initiation script into the container
 COPY generate-keyfile.sh /generate-keyfile.sh
@@ -9,11 +9,4 @@ RUN chmod +x /generate-keyfile.sh
 
 ARG REPLICA_SET_NAME
 
-# Add healthcheck
-HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
-  CMD mongosh --eval "db.adminCommand('ping')" || exit 1
-
-# Expose standard MongoDB port
-EXPOSE 27017
-
-ENTRYPOINT ["/bin/bash", "-c", "/generate-keyfile.sh && exec docker-entrypoint.sh mongod --replSet $REPLICA_SET_NAME --auth --keyFile /data/keyfile --ipv6 --bind_ip ::,0.0.0.0 --wiredTigerCacheSizeGB 0.25"]
+ENTRYPOINT ["/bin/bash", "-c", "/generate-keyfile.sh && exec docker-entrypoint.sh mongod --replSet $REPLICA_SET_NAME --auth --keyFile /data/keyfile --ipv6 --bind_ip ::,0.0.0.0"]
