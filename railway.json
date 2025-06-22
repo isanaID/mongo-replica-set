@@ -1,0 +1,18 @@
+{
+  "build": {
+    "builder": "dockerfile",
+    "dockerfilePath": "nodes/Dockerfile"
+  },
+  "deploy": {
+    "restartPolicyType": "always",
+    "healthcheckTimeout": 300
+  },
+  "environments": {
+    "production": {
+      "variables": {
+        "MONGO_INITDB_DATABASE": "admin",
+        "REPLICA_SET_NAME": "rs0"
+      }
+    }
+  }
+}
